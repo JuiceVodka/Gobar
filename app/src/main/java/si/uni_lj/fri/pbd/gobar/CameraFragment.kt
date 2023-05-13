@@ -9,8 +9,10 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
+import android.media.ImageReader
 import android.os.Bundle
 import android.os.Handler
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
@@ -20,7 +22,10 @@ import androidx.core.content.ContextCompat.getSystemService
 
 class CameraFragment : Fragment(){
 
+    private lateinit var cameraCaptureSession: CameraCaptureSession
     private lateinit var cameraManager :CameraManager
+    private var camDev :CameraDevice? = null
+    private lateinit var imageReader: ImageReader
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +43,9 @@ class CameraFragment : Fragment(){
 
 
     fun takePhoto(){
-
+        val req = camDev?.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
+        req?.addTarget(imageReader.surface)
+        req?.build()?.let { cameraCaptureSession.capture(it, null, null) }
     }
 
     private fun startCameraSession() {
@@ -60,29 +67,53 @@ class CameraFragment : Fragment(){
         }
         cameraManager.openCamera(firstCamera, object: CameraDevice.StateCallback() {
             override fun onDisconnected(p0: CameraDevice) {
-                Log.d(TAG, "GHAJKDHGJSAGHJHK")
+
             }
             override fun onError(p0: CameraDevice, p1: Int) {
-                Log.d(TAG, "GHAJKDHGJSAGHJHK")
+
             }
 
             override fun onOpened(cameraDevice: CameraDevice) {
-                Log.d(TAG, "GHAJKDHGJSAGHJHK")
+                camDev = cameraDevice
                 // use the camera
                 val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraDevice.id)
 
                 cameraCharacteristics[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]?.let { streamConfigurationMap ->
-                    streamConfigurationMap.getOutputSizes(ImageFormat.YUV_420_888)?.let { yuvSizes ->
+                    streamConfigurationMap.getOutputSizes(ImageFormat.JPEG)?.let { yuvSizes ->
                         val previewSize = yuvSizes.last()
 
-                        //val displayRotation = activity!!.windowManager.defaultDisplay.rotation
-                        //val swappedDimensions = areDimensionsSwapped(displayRotation, cameraCharacteristics)
+                        val displayRotation = activity!!.windowManager.defaultDisplay.rotation
+                        val swappedDimensions = areDimensionsSwapped(displayRotation, cameraCharacteristics)
                         // swap width and height if needed
-                        //val rotatedPreviewWidth = if (swappedDimensions) previewSize.height else previewSize.width
-                        //val rotatedPreviewHeight = if (swappedDimensions) previewSize.width else previewSize.height
 
-                        //view?.findViewById<SurfaceView>(R.id.surfaceView)?.holder?.setFixedSize(rotatedPreviewWidth, rotatedPreviewHeight)
+                        val displayMetrics = DisplayMetrics()
+                        activity!!.windowManager.defaultDisplay.getMetrics(displayMetrics)
 
+                        var width = displayMetrics.widthPixels
+                        var height = displayMetrics.heightPixels
+
+                        Log.d(TAG, previewSize.toString())
+                        Log.d(TAG, width.toString()+ "|" + height.toString())
+                        Log.d(TAG, previewSize.width.toString()+ "|" + previewSize.height.toString())
+
+
+
+                        val rotatedPreviewWidth = if (swappedDimensions) previewSize.height else previewSize.width
+                        val rotatedPreviewHeight = if (swappedDimensions) previewSize.width else previewSize.height
+                        Log.d(TAG, rotatedPreviewWidth.toString()+ "|" + rotatedPreviewHeight.toString())
+
+
+                        imageReader = ImageReader.newInstance((rotatedPreviewWidth *(width/rotatedPreviewWidth)*1.15).toInt(), (rotatedPreviewHeight*(width/rotatedPreviewWidth)*1.15).toInt(), ImageFormat.JPEG, 1)
+                        imageReader.setOnImageAvailableListener(object :ImageReader.OnImageAvailableListener{
+                            override fun onImageAvailable(p0: ImageReader?) {
+                                Log.d(TAG, "IMAGE AVAILABLE")
+
+                            }
+
+                        }, Handler {true})
+
+                        view?.findViewById<SurfaceView>(R.id.surfaceView)?.holder?.setFixedSize((rotatedPreviewWidth *(width/rotatedPreviewWidth)*1.15).toInt(), (rotatedPreviewHeight*(width/rotatedPreviewWidth)*1.15).toInt())
+                        //view?.findViewById<SurfaceView>(R.id.surfaceView)
                         val previewSurface = view?.findViewById<SurfaceView>(R.id.surfaceView)?.holder?.surface
 
                         val captureCallback = object : CameraCaptureSession.StateCallback()
@@ -90,9 +121,10 @@ class CameraFragment : Fragment(){
                             override fun onConfigureFailed(session: CameraCaptureSession) {}
 
                             override fun onConfigured(session: CameraCaptureSession) {
+                                cameraCaptureSession = session
                                 Log.d(TAG, "CONFIGURED TEST")
                                 // session configured
-                                val previewRequestBuilder = cameraDevice?.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+                                val previewRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
                                     .apply {
                                         if (previewSurface != null) {
                                             addTarget(previewSurface)
@@ -106,7 +138,7 @@ class CameraFragment : Fragment(){
                             }
                         }
 
-                        cameraDevice.createCaptureSession(mutableListOf(previewSurface), captureCallback, Handler { true })
+                        cameraDevice.createCaptureSession(mutableListOf(previewSurface, imageReader.surface), captureCallback, Handler { true })
                     }
 
                 }
