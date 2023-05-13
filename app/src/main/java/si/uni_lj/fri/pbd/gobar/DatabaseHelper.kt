@@ -44,9 +44,10 @@ class DatabaseHelper(context: Context) :SQLiteOpenHelper(context, DATABASE_NAME,
                 + MUSHROOM_COMMON_NAME + " TEXT NOT NULL,"
                 + MUSHROOM_LATIN_NAME + " TEXT NOT NULL,"
                 + MUSHROOM_EDIBILITY + " TEXT NOT NULL,"
-                + MUSHROOM_IS_PSYCHOACTIVE + " BOOLEAN NOT NULL,"
-                + MUSHROOM_IS_DISCOVERED + " BOOLEAN NOT NULL,"
-                + MUSHROOM_IMAGE + " TEXT NOT NULL)")
+                + MUSHROOM_IS_PSYCHOACTIVE + " INTEGER NOT NULL,"
+                + MUSHROOM_IS_DISCOVERED + " INTEGER NOT NULL,"
+                + MUSHROOM_IMAGE + " TEXT NOT NULL,"
+                + MUSHROOM_NUMBER_FOUND + " INTEGER NOT NULL)")
 
         db?.execSQL(CREATE_LOCATION_TABLE)
         db?.execSQL(CREATE_DETAILS_TABLE)
