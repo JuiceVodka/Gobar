@@ -84,13 +84,12 @@ class MainActivity : AppCompatActivity() {
         dbHelper = DatabaseHelper(this)
 
         fragmentTransaction = supportFragmentManager.beginTransaction()
-//        var camFragment :CameraFragment = CameraFragment()
 
 //CAMERA:
-//        var camFragment :CameraFragment = CameraFragment()
-//
-//
-//        fragmentTransaction?.add(R.id.fragmentFrame, camFragment)
+        var camFragment :CameraFragment = CameraFragment()
+
+
+        fragmentTransaction?.add(R.id.fragmentFrame, camFragment)
         var mapFragment :MapFragment = MapFragment()
         fragmentTransaction?.add(R.id.fragmentFrame, mapFragment)
         fragmentTransaction?.commit()
@@ -98,16 +97,16 @@ class MainActivity : AppCompatActivity() {
         //todo set different icon
 
 
-//        binding.photo.setOnClickListener {
-//            if(cameraActive){
-//                camFragment.takePhoto()
-//            } else {
-//                fragmentTransaction = supportFragmentManager.beginTransaction()
-//                camFragment = CameraFragment()
-//                fragmentTransaction?.add(R.id.fragmentFrame, camFragment)
-//                fragmentTransaction?.commit()
-//            }
-//        }
+        binding.photo.setOnClickListener {
+            if(cameraActive){
+                camFragment.takePhoto()
+            } else {
+                fragmentTransaction = supportFragmentManager.beginTransaction()
+                camFragment = CameraFragment()
+                fragmentTransaction?.add(R.id.fragmentFrame, camFragment)
+                fragmentTransaction?.commit()
+            }
+        }
 
         binding.map.setOnClickListener {
             fragmentTransaction = supportFragmentManager.beginTransaction()
