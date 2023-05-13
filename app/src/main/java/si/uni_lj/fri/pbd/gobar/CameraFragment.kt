@@ -9,6 +9,7 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
+import android.media.ImageReader
 import android.os.Bundle
 import android.os.Handler
 import android.util.DisplayMetrics
@@ -21,8 +22,10 @@ import androidx.core.content.ContextCompat.getSystemService
 
 class CameraFragment : Fragment(){
 
+    private lateinit var cameraCaptureSession: CameraCaptureSession
     private lateinit var cameraManager :CameraManager
     private var camDev :CameraDevice? = null
+    private lateinit var imageReader: ImageReader
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +43,9 @@ class CameraFragment : Fragment(){
 
 
     fun takePhoto(){
-        camDev?.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
+        val req = camDev?.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
+        req?.addTarget(imageReader.surface)
+        req?.build()?.let { cameraCaptureSession.capture(it, null, null) }
     }
 
     private fun startCameraSession() {
@@ -90,13 +95,24 @@ class CameraFragment : Fragment(){
                         Log.d(TAG, previewSize.toString())
                         Log.d(TAG, width.toString()+ "|" + height.toString())
                         Log.d(TAG, previewSize.width.toString()+ "|" + previewSize.height.toString())
-                        Log.d(TAG, streamConfigurationMap.getOutputSizes(ImageFormat.YUV_420_888).toString())
+
+
+
                         val rotatedPreviewWidth = if (swappedDimensions) previewSize.height else previewSize.width
                         val rotatedPreviewHeight = if (swappedDimensions) previewSize.width else previewSize.height
                         Log.d(TAG, rotatedPreviewWidth.toString()+ "|" + rotatedPreviewHeight.toString())
 
 
-                        view?.findViewById<SurfaceView>(R.id.surfaceView)?.holder?.setFixedSize(rotatedPreviewWidth *(width/rotatedPreviewWidth), (rotatedPreviewHeight*(width/rotatedPreviewWidth)*1.15).toInt())
+                        imageReader = ImageReader.newInstance((rotatedPreviewWidth *(width/rotatedPreviewWidth)*1.15).toInt(), (rotatedPreviewHeight*(width/rotatedPreviewWidth)*1.15).toInt(), ImageFormat.JPEG, 1)
+                        imageReader.setOnImageAvailableListener(object :ImageReader.OnImageAvailableListener{
+                            override fun onImageAvailable(p0: ImageReader?) {
+                                Log.d(TAG, "IMAGE AVAILABLE")
+
+                            }
+
+                        }, Handler {true})
+
+                        view?.findViewById<SurfaceView>(R.id.surfaceView)?.holder?.setFixedSize((rotatedPreviewWidth *(width/rotatedPreviewWidth)*1.15).toInt(), (rotatedPreviewHeight*(width/rotatedPreviewWidth)*1.15).toInt())
                         //view?.findViewById<SurfaceView>(R.id.surfaceView)
                         val previewSurface = view?.findViewById<SurfaceView>(R.id.surfaceView)?.holder?.surface
 
@@ -105,6 +121,7 @@ class CameraFragment : Fragment(){
                             override fun onConfigureFailed(session: CameraCaptureSession) {}
 
                             override fun onConfigured(session: CameraCaptureSession) {
+                                cameraCaptureSession = session
                                 Log.d(TAG, "CONFIGURED TEST")
                                 // session configured
                                 val previewRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
@@ -121,7 +138,7 @@ class CameraFragment : Fragment(){
                             }
                         }
 
-                        cameraDevice.createCaptureSession(mutableListOf(previewSurface), captureCallback, Handler { true })
+                        cameraDevice.createCaptureSession(mutableListOf(previewSurface, imageReader.surface), captureCallback, Handler { true })
                     }
 
                 }
