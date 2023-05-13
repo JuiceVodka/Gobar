@@ -6,13 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".CameraFragment">
 
-    <SurfaceView
-        android:id="@+id/surfaceView"
+    <ImageView
+        android:id="@+id/memoImage"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="80dp"
+        android:contentDescription="TEST"
+        android:src="@drawable/ic_launcher_background"
+        tools:layout_conversion_absoluteHeight="108dp"
+        tools:layout_editor_absoluteY="0dp"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_conversion_absoluteWidth="411dp"
+        />
 
 </FrameLayout>

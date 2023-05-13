@@ -1,31 +1,26 @@
 package si.uni_lj.fri.pbd.gobar
 
-import android.Manifest
-import android.app.Application
-import android.content.Context
-import android.content.pm.PackageManager
-import android.graphics.ImageFormat
-import android.hardware.camera2.CameraCaptureSession
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraDevice
-import android.hardware.camera2.CameraManager
-import android.media.ImageReader
+import android.app.Activity.RESULT_OK
+import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
-import android.os.Handler
-import android.util.DisplayMetrics
+import android.provider.MediaStore
+import android.util.Base64
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat.getSystemService
+import okhttp3.*
+import java.io.ByteArrayOutputStream
+import java.io.IOException
 
 
 class CameraFragment : Fragment(){
 
-    private lateinit var cameraCaptureSession: CameraCaptureSession
-    private lateinit var cameraManager :CameraManager
-    private var camDev :CameraDevice? = null
-    private lateinit var imageReader: ImageReader
+    private val client = OkHttpClient()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,140 +32,61 @@ class CameraFragment : Fragment(){
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        startCameraSession()
         return inflater.inflate(R.layout.fragment_camera, container, false)
     }
 
 
     fun takePhoto(){
-        val req = camDev?.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
-        req?.addTarget(imageReader.surface)
-        req?.build()?.let { cameraCaptureSession.capture(it, null, null) }
-    }
-
-    private fun startCameraSession() {
-        cameraManager = requireContext().getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        if (cameraManager.cameraIdList.isEmpty()) {
-            // no cameras
-            return
-        }
-        val firstCamera = cameraManager.cameraIdList[0]
-        if (activity?.let {
-                ActivityCompat.checkSelfPermission(
-                    it,
-                    Manifest.permission.CAMERA
-                )
-            } != PackageManager.PERMISSION_GRANTED
-        ) {
-            Log.d(TAG, "NO Premissions")
-            return
-        }
-        cameraManager.openCamera(firstCamera, object: CameraDevice.StateCallback() {
-            override fun onDisconnected(p0: CameraDevice) {
-
-            }
-            override fun onError(p0: CameraDevice, p1: Int) {
-
-            }
-
-            override fun onOpened(cameraDevice: CameraDevice) {
-                camDev = cameraDevice
-                // use the camera
-                val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraDevice.id)
-
-                cameraCharacteristics[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]?.let { streamConfigurationMap ->
-                    streamConfigurationMap.getOutputSizes(ImageFormat.JPEG)?.let { yuvSizes ->
-                        val previewSize = yuvSizes.last()
-
-                        val displayRotation = activity!!.windowManager.defaultDisplay.rotation
-                        val swappedDimensions = areDimensionsSwapped(displayRotation, cameraCharacteristics)
-                        // swap width and height if needed
-
-                        val displayMetrics = DisplayMetrics()
-                        activity!!.windowManager.defaultDisplay.getMetrics(displayMetrics)
-
-                        var width = displayMetrics.widthPixels
-                        var height = displayMetrics.heightPixels
-
-                        Log.d(TAG, previewSize.toString())
-                        Log.d(TAG, width.toString()+ "|" + height.toString())
-                        Log.d(TAG, previewSize.width.toString()+ "|" + previewSize.height.toString())
-
-
-
-                        val rotatedPreviewWidth = if (swappedDimensions) previewSize.height else previewSize.width
-                        val rotatedPreviewHeight = if (swappedDimensions) previewSize.width else previewSize.height
-                        Log.d(TAG, rotatedPreviewWidth.toString()+ "|" + rotatedPreviewHeight.toString())
-
-
-                        imageReader = ImageReader.newInstance((rotatedPreviewWidth *(width/rotatedPreviewWidth)*1.15).toInt(), (rotatedPreviewHeight*(width/rotatedPreviewWidth)*1.15).toInt(), ImageFormat.JPEG, 1)
-                        imageReader.setOnImageAvailableListener(object :ImageReader.OnImageAvailableListener{
-                            override fun onImageAvailable(p0: ImageReader?) {
-                                Log.d(TAG, "IMAGE AVAILABLE")
-
-                            }
-
-                        }, Handler {true})
-
-                        view?.findViewById<SurfaceView>(R.id.surfaceView)?.holder?.setFixedSize((rotatedPreviewWidth *(width/rotatedPreviewWidth)*1.15).toInt(), (rotatedPreviewHeight*(width/rotatedPreviewWidth)*1.15).toInt())
-                        //view?.findViewById<SurfaceView>(R.id.surfaceView)
-                        val previewSurface = view?.findViewById<SurfaceView>(R.id.surfaceView)?.holder?.surface
-
-                        val captureCallback = object : CameraCaptureSession.StateCallback()
-                        {
-                            override fun onConfigureFailed(session: CameraCaptureSession) {}
-
-                            override fun onConfigured(session: CameraCaptureSession) {
-                                cameraCaptureSession = session
-                                Log.d(TAG, "CONFIGURED TEST")
-                                // session configured
-                                val previewRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
-                                    .apply {
-                                        if (previewSurface != null) {
-                                            addTarget(previewSurface)
-                                        }
-                                    }
-                                session.setRepeatingRequest(
-                                    previewRequestBuilder.build(),
-                                    object: CameraCaptureSession.CaptureCallback() {},
-                                    Handler { true }
-                                )
-                            }
-                        }
-
-                        cameraDevice.createCaptureSession(mutableListOf(previewSurface, imageReader.surface), captureCallback, Handler { true })
-                    }
-
-                }
-            }
-        }, Handler { true })
-    }
-
-
-    private fun areDimensionsSwapped(displayRotation: Int, cameraCharacteristics: CameraCharacteristics): Boolean {
-        var swappedDimensions = false
-        when (displayRotation) {
-            Surface.ROTATION_0, Surface.ROTATION_180 -> {
-                if (cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) == 90 || cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) == 270) {
-                    swappedDimensions = true
-                }
-            }
-            Surface.ROTATION_90, Surface.ROTATION_270 -> {
-                if (cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) == 0 || cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) == 180) {
-                    swappedDimensions = true
-                }
-            }
-            else -> {
-                // invalid display rotation
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+            takePictureIntent.resolveActivity(requireActivity().packageManager)?.also {
+//                    imageUri = getImageUri(context, imageFile)
+//                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
+                startActivityForResult(takePictureIntent, 1)
             }
         }
-        return swappedDimensions
+
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+
+            val image = data?.extras?.get("data") as Bitmap
+            Log.d(TAG, image.toString())
+
+            image.apply {
+                view?.findViewById<ImageView>(R.id.memoImage)?.setImageBitmap(this)
+                // create rounded corners bitmap
+            }
+
+            run("https://api.github.com/users/Evin1-/repos")
+
+            //detailListener?.switchToDetail(image)
+        }
+    }
+
+    fun run(url: String, bitmap :Bitmap) {
+
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+        val byteArray = byteArrayOutputStream.toByteArray()
+        val base64 = Base64.encodeToString(byteArray, Base64.DEFAULT)
+        val requestBody = base64.toRequestBody("text/plain".toMediaTypeOrNull())
+        val request = Request.Builder()
+            .url("http://example.com/upload")
+            .post(requestBody)
+            .build()
+
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {}
+            override fun onResponse(call: Call, response: Response){
+                Log.d(TAG, response.toString())
+            }
+        })
+    }
 
     companion object {
         const val TAG = "CAMERAFRAGMENT"
     }
-
-
 }
