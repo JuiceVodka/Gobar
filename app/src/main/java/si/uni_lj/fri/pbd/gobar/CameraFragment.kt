@@ -66,7 +66,6 @@ class CameraFragment : Fragment(){
 
             run(image)
 
-            //detailListener?.switchToDetail(image)
         }
     }
 
