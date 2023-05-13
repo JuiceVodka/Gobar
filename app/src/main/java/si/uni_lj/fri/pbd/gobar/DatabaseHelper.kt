@@ -15,14 +15,14 @@ class DatabaseHelper(context: Context) :SQLiteOpenHelper(context, DATABASE_NAME,
         const val DATABASE_NAME = "gobar_db"
         const val TABLE_MUSHROOM_DETAILS = "MushroomDetails"
         const val TABLE_MUSHROOM_LOCATION = "MushroomLocation"
-        const val MUSHROOM_COMMON_NAME = "name"
-        const val MUSHROOM_LATIN_NAME = "name"
-        const val MUSHROOM_LAT = 0.0
-        const val MUSHROOM_LONG = 0.0
-        const val MUSHROOM_EDIBILITY = "string"
-        const val MUSHROOM_IMAGE = "BASE64"
-        const val MUSHROOM_IS_PSYCHOACTIVE = false
-        const val MUSHROOM_IS_DISCOVERED = false
+        const val MUSHROOM_COMMON_NAME = "NameCommon"
+        const val MUSHROOM_LATIN_NAME = "NameLatin"
+        const val MUSHROOM_LAT = "Latitude"
+        const val MUSHROOM_LONG = "Longitude"
+        const val MUSHROOM_EDIBILITY = "Edibility"
+        const val MUSHROOM_IMAGE = "Image"
+        const val MUSHROOM_IS_PSYCHOACTIVE = "IsPsychoActive"
+        const val MUSHROOM_IS_DISCOVERED = "IsDiscovered"
         const val _ID = "_id"
         const val _IDL = "_idr"
         val COLUMNS_DETAILS = arrayOf(_ID, MUSHROOM_COMMON_NAME, MUSHROOM_LATIN_NAME, MUSHROOM_EDIBILITY, MUSHROOM_IS_PSYCHOACTIVE, MUSHROOM_IS_DISCOVERED, MUSHROOM_IMAGE)
@@ -76,8 +76,8 @@ class DatabaseHelper(context: Context) :SQLiteOpenHelper(context, DATABASE_NAME,
                         cursor.getString(1),
                         cursor.getString(2),
                         cursor.getString(3),
-                        cursor.getInt(4) > 0,
-                        cursor.getInt(5) > 0,
+                        cursor.getInt(4),
+                        cursor.getInt(5),
                         cursor.getString(6)
                     )
                 )
