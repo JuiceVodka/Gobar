@@ -33,6 +33,8 @@ class CompendiumFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        mushroomDetailsList = detailsListener?.gbl()
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_compendium, container, false)
     }

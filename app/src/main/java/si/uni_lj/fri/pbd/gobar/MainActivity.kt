@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
@@ -17,9 +18,11 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentTransaction
 import si.uni_lj.fri.pbd.gobar.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CompendiumFragment.detailsLst {
     private lateinit var binding : ActivityMainBinding;
     var dbHelper :DatabaseHelper? = null
+
+    var detailsList: List<MushroomDetailsModel>? = null
     private var fragmentTransaction : FragmentTransaction? = null
 
     private var cameraActive :Boolean = true
@@ -82,6 +85,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         dbHelper = DatabaseHelper(this)
+
+        val prefs : SharedPreferences = getApplicationContext().getSharedPreferences("preferences", Context.MODE_PRIVATE)
+        Log.d("DEBUG", prefs.all.toString())
+        if(prefs.getBoolean("frstRun", true)){
+            prefs.edit().putBoolean("frstRun", false).commit()
+            Log.d("DEBUG", "FRST")
+            fillDb()
+        }else{
+            Log.d("DEBUG", "SCND")
+        }
+
+        detailsList = dbHelper!!.returnDetails()
 
         fragmentTransaction = supportFragmentManager.beginTransaction()
 
@@ -206,5 +221,9 @@ class MainActivity : AppCompatActivity() {
         values.clear()
 
         Log.d("DEBUG", "Baza napolnjena")
+    }
+
+    override fun gbl(): List<MushroomDetailsModel>? {
+        return detailsList;
     }
 }
