@@ -6,4 +6,50 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/appbar"
+        android:id="@+id/fragmentFrame">
+
+    </FrameLayout>
+
+
+    <LinearLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageButton
+            android:id="@+id/map"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:minHeight="80dp"
+            app:srcCompat="?attr/actionModeCutDrawable"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+        <ImageButton
+            android:id="@+id/photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:minHeight="80dp"
+            app:srcCompat="?attr/actionModeSelectAllDrawable"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+        <ImageButton
+            android:id="@+id/compendium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:minHeight="80dp"
+            app:srcCompat="?attr/homeAsUpIndicator"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
