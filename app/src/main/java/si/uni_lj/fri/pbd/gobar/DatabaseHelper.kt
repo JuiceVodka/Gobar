@@ -7,9 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import java.text.SimpleDateFormat
 
-class DatabaseHelper(context: Context) :SQLiteOpenHelper(
-    context, DATABASE_NAME, null, DATABASE_VERSION
-){
+class DatabaseHelper(context: Context) :SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION){
 
     companion object{
         const val TAG = "DatabaseHelper"
@@ -106,5 +104,6 @@ class DatabaseHelper(context: Context) :SQLiteOpenHelper(
             } while (cursor.moveToNext())
         }
         return mushroomLocationsList
+
     }
 }

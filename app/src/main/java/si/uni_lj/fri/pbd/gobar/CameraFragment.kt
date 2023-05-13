@@ -1,32 +1,30 @@
 package si.uni_lj.fri.pbd.gobar
 
+import android.Manifest
+import android.app.Application
+import android.content.Context
+import android.content.pm.PackageManager
+import android.graphics.ImageFormat
+import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraManager
 import android.os.Bundle
+import android.os.Handler
+import android.util.Log
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat.getSystemService
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [CameraFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class CameraFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+class CameraFragment : Fragment(){
+
+    private lateinit var cameraManager :CameraManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+
     }
 
     override fun onCreateView(
@@ -34,26 +32,113 @@ class CameraFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
+        startCameraSession()
         return inflater.inflate(R.layout.fragment_camera, container, false)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment CameraFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            CameraFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+
+    fun takePhoto(){
+
+    }
+
+    private fun startCameraSession() {
+        cameraManager = requireContext().getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        if (cameraManager.cameraIdList.isEmpty()) {
+            // no cameras
+            return
+        }
+        val firstCamera = cameraManager.cameraIdList[0]
+        if (activity?.let {
+                ActivityCompat.checkSelfPermission(
+                    it,
+                    Manifest.permission.CAMERA
+                )
+            } != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.d(TAG, "NO Premissions")
+            return
+        }
+        cameraManager.openCamera(firstCamera, object: CameraDevice.StateCallback() {
+            override fun onDisconnected(p0: CameraDevice) {
+                Log.d(TAG, "GHAJKDHGJSAGHJHK")
+            }
+            override fun onError(p0: CameraDevice, p1: Int) {
+                Log.d(TAG, "GHAJKDHGJSAGHJHK")
+            }
+
+            override fun onOpened(cameraDevice: CameraDevice) {
+                Log.d(TAG, "GHAJKDHGJSAGHJHK")
+                // use the camera
+                val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraDevice.id)
+
+                cameraCharacteristics[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]?.let { streamConfigurationMap ->
+                    streamConfigurationMap.getOutputSizes(ImageFormat.YUV_420_888)?.let { yuvSizes ->
+                        val previewSize = yuvSizes.last()
+
+                        //val displayRotation = activity!!.windowManager.defaultDisplay.rotation
+                        //val swappedDimensions = areDimensionsSwapped(displayRotation, cameraCharacteristics)
+                        // swap width and height if needed
+                        //val rotatedPreviewWidth = if (swappedDimensions) previewSize.height else previewSize.width
+                        //val rotatedPreviewHeight = if (swappedDimensions) previewSize.width else previewSize.height
+
+                        //view?.findViewById<SurfaceView>(R.id.surfaceView)?.holder?.setFixedSize(rotatedPreviewWidth, rotatedPreviewHeight)
+
+                        val previewSurface = view?.findViewById<SurfaceView>(R.id.surfaceView)?.holder?.surface
+
+                        val captureCallback = object : CameraCaptureSession.StateCallback()
+                        {
+                            override fun onConfigureFailed(session: CameraCaptureSession) {}
+
+                            override fun onConfigured(session: CameraCaptureSession) {
+                                Log.d(TAG, "CONFIGURED TEST")
+                                // session configured
+                                val previewRequestBuilder = cameraDevice?.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+                                    .apply {
+                                        if (previewSurface != null) {
+                                            addTarget(previewSurface)
+                                        }
+                                    }
+                                session.setRepeatingRequest(
+                                    previewRequestBuilder.build(),
+                                    object: CameraCaptureSession.CaptureCallback() {},
+                                    Handler { true }
+                                )
+                            }
+                        }
+
+                        cameraDevice.createCaptureSession(mutableListOf(previewSurface), captureCallback, Handler { true })
+                    }
+
                 }
             }
+        }, Handler { true })
     }
+
+
+    private fun areDimensionsSwapped(displayRotation: Int, cameraCharacteristics: CameraCharacteristics): Boolean {
+        var swappedDimensions = false
+        when (displayRotation) {
+            Surface.ROTATION_0, Surface.ROTATION_180 -> {
+                if (cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) == 90 || cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) == 270) {
+                    swappedDimensions = true
+                }
+            }
+            Surface.ROTATION_90, Surface.ROTATION_270 -> {
+                if (cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) == 0 || cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) == 180) {
+                    swappedDimensions = true
+                }
+            }
+            else -> {
+                // invalid display rotation
+            }
+        }
+        return swappedDimensions
+    }
+
+
+    companion object {
+        const val TAG = "CAMERAFRAGMENT"
+    }
+
+
 }
