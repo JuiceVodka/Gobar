@@ -13,6 +13,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import okhttp3.*
+import okhttp3.Headers.Companion.toHeaders
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
@@ -59,32 +64,75 @@ class CameraFragment : Fragment(){
                 // create rounded corners bitmap
             }
 
-            //run("https://api.github.com/users/Evin1-/repos")
+            run(image)
 
-            //detailListener?.switchToDetail(image)
         }
     }
 
-    /*fun run(url: String, bitmap :Bitmap) {
+    fun run(bitmap :Bitmap) {
+        identify(bitmap)
+    }
 
+    @Throws(IOException::class)
+    fun identify(bitmap: Bitmap){
+        Log.d(TAG, "IDENTIFIKACIJA")
+        val mediaType = "application/json; charset=utf-8".toMediaType()
+        val requestBody = createRequestBody(bitmap)
+        val request = Request.Builder()
+            .url("https://mushroom.mlapi.ai/api/v1/identification?details=common_names,gbif_id,taxonomy,rank,characteristic,edibility,psychoactive")
+            .post(requestBody)
+            .addHeader("Api-Key", "Hei1oOTMvoeW2miXZ1eeUOT7IfIUn2QLSmwT89xPPCe8WVMGbh")
+            .build()
+        val client = OkHttpClient()
+        var res :Response? = null
+        val response = client.newCall(request).enqueue(object :Callback{
+            override fun onFailure(call: Call, e: IOException) {
+
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                Log.d(TAG, response.message)
+                Log.d(TAG, response.toString())
+                val bod = response.body?.string()
+                Log.d(TAG, bod.toString())
+                res = response
+                val jsonResponse = JSONObject(bod)
+                val name = (jsonResponse.getJSONObject("result").getJSONObject("classification").getJSONArray("suggestions")[0] as JSONObject).getString("name")
+                Log.d(TAG, name.toString())
+
+
+                val commonName = (jsonResponse.getJSONObject("result").getJSONObject("classification").getJSONArray("suggestions")[0] as JSONObject).getJSONObject("details").getJSONArray("common_names")[0]
+
+                val edibility = (jsonResponse.getJSONObject("result").getJSONObject("classification").getJSONArray("suggestions")[0] as JSONObject).getJSONObject("details").getString("edibility")
+
+                val psychoactive =  (jsonResponse.getJSONObject("result").getJSONObject("classification").getJSONArray("suggestions")[0] as JSONObject).getJSONObject("details").getString("psychoactive")
+                Log.d(TAG, name)
+                Log.d(TAG, commonName.toString())
+                Log.d(TAG, edibility)
+                Log.d(TAG, psychoactive)
+            }
+
+        })
+    }
+
+    @Throws(IOException::class)
+    fun createRequestBody(bitmap: Bitmap): RequestBody {
         val byteArrayOutputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
-        val byteArray = byteArrayOutputStream.toByteArray()
-        val base64 = Base64.encodeToString(byteArray, Base64.DEFAULT)
-        val requestBody = base64.toRequestBody("text/plain".toMediaTypeOrNull())
-        val request = Request.Builder()
-            .url("http://example.com/upload")
-            .post(requestBody)
+        val requestBody = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("images", "image.jpg", byteArrayOutputStream.toByteArray().toRequestBody("image/jpg".toMediaType()))
+            .addFormDataPart("latitude", "49.1951239")
+            .addFormDataPart("longitude", "16.6077111")
+            .addFormDataPart("similar_images", "true")
             .build()
+        return requestBody
+    }
 
+    fun updateUI(latin :String, name :String, edibility :String, poison :String){
 
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {}
-            override fun onResponse(call: Call, response: Response){
-                Log.d(TAG, response.toString())
-            }
-        })
-    }*/
+    }
+
 
     companion object {
         const val TAG = "CAMERAFRAGMENT"
