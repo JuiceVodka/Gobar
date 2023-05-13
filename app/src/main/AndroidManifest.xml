@@ -3,6 +3,8 @@
     package="si.uni_lj.fri.pbd.gobar">
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -11,6 +13,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Gobar">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyA_nnyNihWfilBZh_Usbdn9HlIh--fqsy8" />
         <activity
             android:name=".SplashScreenActivity"
             android:exported="true">
@@ -26,6 +31,7 @@
         <meta-data
             android:name="com.parse.SERVER_URL"
             android:value="@string/back4app_server_url" />
+
         <meta-data
             android:name="com.parse.APPLICATION_ID"
             android:value="@string/back4app_app_id" />

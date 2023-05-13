@@ -8,4 +8,8 @@
     <!-- Change the following strings as required -->
     <string name="back4app_app_id">b0nwpOui3Otwzc8HCbsCU7GC2zlVdz0JEpIQC2CQ</string>
     <string name="back4app_client_key">c9Ze6l6rxERJIlBdFrlfezYxzAPNIDqKl4NjTn17</string>
+    <string name="permission_location_rationale">To show map markers, this app needs your location information</string>
+    <string name="ok">OK</string>
+
+    <string name="get_location">get location</string>
 </resources>
