@@ -12,4 +12,5 @@
     <string name="ok">OK</string>
 
     <string name="get_location">get location</string>
+    <string name="collection">COLLECTION</string>
 </resources>
