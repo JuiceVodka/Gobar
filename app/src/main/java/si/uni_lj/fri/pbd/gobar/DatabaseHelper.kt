@@ -23,9 +23,10 @@ class DatabaseHelper(context: Context) :SQLiteOpenHelper(context, DATABASE_NAME,
         const val MUSHROOM_IMAGE = "Image"
         const val MUSHROOM_IS_PSYCHOACTIVE = "IsPsychoActive"
         const val MUSHROOM_IS_DISCOVERED = "IsDiscovered"
+        const val MUSHROOM_NUMBER_FOUND = "NumberFound"
         const val _ID = "_id"
         const val _IDL = "_idr"
-        val COLUMNS_DETAILS = arrayOf(_ID, MUSHROOM_COMMON_NAME, MUSHROOM_LATIN_NAME, MUSHROOM_EDIBILITY, MUSHROOM_IS_PSYCHOACTIVE, MUSHROOM_IS_DISCOVERED, MUSHROOM_IMAGE)
+        val COLUMNS_DETAILS = arrayOf(_ID, MUSHROOM_COMMON_NAME, MUSHROOM_LATIN_NAME, MUSHROOM_EDIBILITY, MUSHROOM_IS_PSYCHOACTIVE, MUSHROOM_IS_DISCOVERED, MUSHROOM_IMAGE, MUSHROOM_NUMBER_FOUND)
         val COLUMNS_LOCATION = arrayOf(_IDL, MUSHROOM_COMMON_NAME, MUSHROOM_LATIN_NAME, MUSHROOM_LAT, MUSHROOM_LONG)
     }
 
@@ -78,7 +79,8 @@ class DatabaseHelper(context: Context) :SQLiteOpenHelper(context, DATABASE_NAME,
                         cursor.getString(3),
                         cursor.getInt(4),
                         cursor.getInt(5),
-                        cursor.getString(6)
+                        cursor.getString(6),
+                        cursor.getInt(7)
                     )
                 )
             } while (cursor.moveToNext())
