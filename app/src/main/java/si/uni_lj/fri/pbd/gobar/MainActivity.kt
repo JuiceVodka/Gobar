@@ -88,10 +88,7 @@ class MainActivity : AppCompatActivity() {
 //CAMERA:
         var camFragment :CameraFragment = CameraFragment()
 
-
         fragmentTransaction?.add(R.id.fragmentFrame, camFragment)
-        var mapFragment :MapFragment = MapFragment()
-        fragmentTransaction?.add(R.id.fragmentFrame, mapFragment)
         fragmentTransaction?.commit()
 
         //todo set different icon
@@ -103,16 +100,25 @@ class MainActivity : AppCompatActivity() {
             } else {
                 fragmentTransaction = supportFragmentManager.beginTransaction()
                 camFragment = CameraFragment()
-                fragmentTransaction?.add(R.id.fragmentFrame, camFragment)
+                fragmentTransaction?.replace(R.id.fragmentFrame, camFragment)
                 fragmentTransaction?.commit()
             }
         }
 
         binding.map.setOnClickListener {
             fragmentTransaction = supportFragmentManager.beginTransaction()
-            mapFragment = MapFragment()
-            fragmentTransaction?.add(R.id.fragmentFrame, mapFragment)
+            var mapFragment = MapFragment()
+            fragmentTransaction?.replace(R.id.fragmentFrame, mapFragment)
             fragmentTransaction?.commit()
+            cameraActive = false
+        }
+
+        binding.compendium.setOnClickListener {
+            fragmentTransaction = supportFragmentManager.beginTransaction()
+            var compendiumFragment = CompendiumFragment()
+            fragmentTransaction?.replace(R.id.fragmentFrame, compendiumFragment)
+            fragmentTransaction?.commit()
+            cameraActive = false
         }
     }
 
