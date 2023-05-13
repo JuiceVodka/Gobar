@@ -59,13 +59,13 @@ class CameraFragment : Fragment(){
                 // create rounded corners bitmap
             }
 
-            run("https://api.github.com/users/Evin1-/repos")
+            //run("https://api.github.com/users/Evin1-/repos")
 
             //detailListener?.switchToDetail(image)
         }
     }
 
-    fun run(url: String, bitmap :Bitmap) {
+    /*fun run(url: String, bitmap :Bitmap) {
 
         val byteArrayOutputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
@@ -84,7 +84,7 @@ class CameraFragment : Fragment(){
                 Log.d(TAG, response.toString())
             }
         })
-    }
+    }*/
 
     companion object {
         const val TAG = "CAMERAFRAGMENT"
