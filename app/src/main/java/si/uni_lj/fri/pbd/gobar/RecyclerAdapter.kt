@@ -1,5 +1,11 @@
 package si.uni_lj.fri.pbd.gobar
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.ColorFilter
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
+import android.graphics.Paint
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -7,8 +13,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+
 
 class RecyclerAdapter(private val shrooms: List<MushroomDetailsModel>?) : RecyclerView.Adapter<RecyclerAdapter.CardViewHolder?>() {
 
@@ -46,16 +54,24 @@ inner class CardViewHolder (itemView: View?) : RecyclerView.ViewHolder(itemView!
         Log.d("gobe", shrooms?.get(i)?.commonName.toString())
 
         if(shrooms == null) return
-        if(shrooms[i].isDiscovered == 0) {
-                viewHolder.itemView.setBackgroundColor(ContextCompat.getColor(viewHolder.itemView.context, R.color.disabled))
-                viewHolder.itemView.isClickable = false
-                viewHolder.itemView.alpha = 0.7f
-            }
-//        viewHolder.itemImage?.setImageResource(shrooms[i].image)
         Glide.with(viewHolder.itemView.context).load(shrooms[i].image).into(viewHolder.itemImage!!)
+
+        if(shrooms[i].isDiscovered == 0) {
+            viewHolder.itemView.setBackgroundColor(ContextCompat.getColor(viewHolder.itemView.context, R.color.disabled))
+
+            viewHolder.itemView.isClickable = false
+            viewHolder.itemView.alpha = 0.7f
+            viewHolder.itemImage?.setBackgroundColor(ContextCompat.getColor(viewHolder.itemView.context, R.color.disabled))
+
+
+            viewHolder.itemImage?.colorFilter = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(0f) })
+
+
+        }
         viewHolder.itemTitle?.text = shrooms[i].commonName
         viewHolder.itemDetail?.text = shrooms[i].edibility
         viewHolder.itemCount?.text = shrooms[i].numFound.toString()
     }
+
 
 }
