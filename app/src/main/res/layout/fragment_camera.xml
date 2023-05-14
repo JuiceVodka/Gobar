@@ -5,9 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".CameraFragment"
-    android:background="@drawable/forest_background">
+    >
 
-
+    <ImageView
+        android:id="@+id/backgroundImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ozadje2" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/scroll"
