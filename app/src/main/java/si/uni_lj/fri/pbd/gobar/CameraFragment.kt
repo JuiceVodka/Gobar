@@ -1,6 +1,7 @@
 package si.uni_lj.fri.pbd.gobar
 
 import android.Manifest
+import android.R.attr
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.content.ContentValues
@@ -8,23 +9,24 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.location.Location
+import android.graphics.BlurMaskFilter
 import android.graphics.Canvas
 import android.graphics.Path
 import android.graphics.RectF
+import android.location.Location
 import android.os.Bundle
 import android.provider.MediaStore
+import android.text.Html
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
 import com.parse.ParseObject
 import okhttp3.*
@@ -64,10 +66,18 @@ class CameraFragment : Fragment(){
 
         binding.buttonShare.setOnClickListener {
             share()
+            binding.buttonShare.isEnabled = false
+            val blurRadius = 6f
+            val blurMaskFilter = BlurMaskFilter(blurRadius, BlurMaskFilter.Blur.NORMAL)
+            binding.buttonShare.paint.maskFilter = blurMaskFilter
         }
 
         binding.buttonSave.setOnClickListener {
             save()
+            binding.buttonSave.isEnabled = false
+            val blurRadius = 6f
+            val blurMaskFilter = BlurMaskFilter(blurRadius, BlurMaskFilter.Blur.NORMAL)
+            binding.buttonSave.paint.maskFilter = blurMaskFilter
         }
 
         return binding.root
@@ -134,10 +144,6 @@ class CameraFragment : Fragment(){
         return bitmap
     }
 
-    fun run(bitmap :Bitmap) {
-        identify(bitmap)
-    }
-
     @Throws(IOException::class)
     fun identify(bitmap: Bitmap){
         Log.d(TAG, "IDENTIFIKACIJA")
@@ -146,7 +152,7 @@ class CameraFragment : Fragment(){
         val request = Request.Builder()
             .url("https://mushroom.mlapi.ai/api/v1/identification?details=common_names,gbif_id,taxonomy,rank,characteristic,edibility,psychoactive")
             .post(requestBody)
-            .addHeader("Api-Key", "Hei1oOTMvoeW2miXZ1eeUOT7IfIUn2QLSmwT89xPPCe8WVMGbh")
+            .addHeader("Api-Key", "WVXUY2AzKt4AFWvVRwcDMd6NaTlZKgZcPokH19ZobPaR31GbJa")
             .build()
         val client = OkHttpClient()
         var res :Response? = null
@@ -212,13 +218,25 @@ class CameraFragment : Fragment(){
         binding.buttonSave.visibility = View.VISIBLE
         binding.buttonShare.visibility = View.VISIBLE
 
-        binding.commonName.text = name
+        if(psyh == "true" ){
+            Toast.makeText(requireContext(), "Sine, ti si šel po gobe", Toast.LENGTH_LONG).show()
+            val blurRadius = 7f
+            val blurMaskFilter = BlurMaskFilter(blurRadius, BlurMaskFilter.Blur.NORMAL)
+            binding.commonName.paint.maskFilter = blurMaskFilter
+            binding.commonName.paint.maskFilter = blurMaskFilter
+        }
+
+        var sourceString = "Name: <b>$name" + "</b> "
+        binding.commonName.text = Html.fromHtml(sourceString)
         binding.commonName.visibility = View.VISIBLE
-        binding.latinName.text = latin
+        sourceString = "Latin: <i>$latin" + "</i> "
+        binding.latinName.text = Html.fromHtml(sourceString)
         binding.latinName.visibility = View.VISIBLE
         binding.edible.text = edibility
         binding.edible.visibility = View.VISIBLE
-        binding.psychadelic.text = psyh
+        val rez = if(psyh=="true") "yes" else "no"
+        sourceString = "Psychadelic: $rez"
+        binding.psychadelic.text = Html.fromHtml(sourceString)
         binding.psychadelic.visibility = View.VISIBLE
     }
 
