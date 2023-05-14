@@ -28,6 +28,8 @@ inner class CardViewHolder (itemView: View?) : RecyclerView.ViewHolder(itemView!
     var itemTitle: TextView? = null
     var itemDetail: TextView? = null
     var itemCount: TextView? = null
+    var countImg: ImageView? = null
+    var edible: ImageView? = null
 
     init {
         Log.d("mjauu", "helo")
@@ -35,6 +37,8 @@ inner class CardViewHolder (itemView: View?) : RecyclerView.ViewHolder(itemView!
         itemTitle = itemView?.findViewById(R.id.item_title)
         itemDetail = itemView?.findViewById(R.id.item_detail)
         itemCount = itemView?.findViewById(R.id.item_count)
+        countImg = itemView?.findViewById(R.id.count)
+        edible = itemView?.findViewById(R.id.edible)
     }
 }
 
@@ -56,6 +60,17 @@ inner class CardViewHolder (itemView: View?) : RecyclerView.ViewHolder(itemView!
         if(shrooms == null) return
         Glide.with(viewHolder.itemView.context).load(shrooms[i].image).into(viewHolder.itemImage!!)
 
+        viewHolder.edible?.setImageResource(R.drawable.mushrooms)
+        if(shrooms[i].edibility == "poisonous") {
+            viewHolder.countImg?.setImageResource(R.drawable.devil)
+        }
+        else if(shrooms[i].edibility == "edible") {
+            viewHolder.countImg?.setImageResource(R.drawable.pica)
+        }
+        else {
+            viewHolder.countImg?.setImageResource(R.drawable.silverware)
+        }
+
         if(shrooms[i].isDiscovered == 0) {
             viewHolder.itemView.setBackgroundColor(ContextCompat.getColor(viewHolder.itemView.context, R.color.disabled))
 
@@ -65,9 +80,15 @@ inner class CardViewHolder (itemView: View?) : RecyclerView.ViewHolder(itemView!
 
 
             viewHolder.itemImage?.colorFilter = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(0f) })
+            viewHolder.countImg?.colorFilter = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(0f) })
+            viewHolder.edible?.colorFilter = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(0f) })
 
 
         }
+
+
+
+
         viewHolder.itemTitle?.text = shrooms[i].commonName
         viewHolder.itemDetail?.text = shrooms[i].edibility
         viewHolder.itemCount?.text = shrooms[i].numFound.toString()
