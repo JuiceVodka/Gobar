@@ -27,6 +27,7 @@
             android:layout_marginEnd="16dp" />
 
         <TextView
+            android:textColor="@color/black"
             android:id="@+id/item_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -36,6 +37,7 @@
 
 
         <TextView
+            android:textColor="@color/black"
             android:id="@+id/item_detail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -45,6 +47,7 @@
             android:textSize="16sp" />
 
         <TextView
+            android:textColor="@color/black"
             android:id="@+id/item_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
