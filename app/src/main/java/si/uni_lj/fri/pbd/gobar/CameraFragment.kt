@@ -5,7 +5,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -13,18 +12,17 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import okhttp3.*
-import okhttp3.Headers.Companion.toHeaders
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONArray
 import org.json.JSONObject
+import si.uni_lj.fri.pbd.gobar.databinding.FragmentCameraBinding
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
 
 class CameraFragment : Fragment(){
 
-    private val client = OkHttpClient()
+    private lateinit var binding :FragmentCameraBinding
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,7 +35,8 @@ class CameraFragment : Fragment(){
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_camera, container, false)
+        binding = FragmentCameraBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
 
@@ -101,15 +100,19 @@ class CameraFragment : Fragment(){
                 Log.d(TAG, name.toString())
 
 
-                val commonName = (jsonResponse.getJSONObject("result").getJSONObject("classification").getJSONArray("suggestions")[0] as JSONObject).getJSONObject("details").getJSONArray("common_names")[0]
+                val commonName = (jsonResponse.getJSONObject("result").getJSONObject("classification").getJSONArray("suggestions")[0] as JSONObject).getJSONObject("details").getJSONArray("common_names")[0] as String
 
                 val edibility = (jsonResponse.getJSONObject("result").getJSONObject("classification").getJSONArray("suggestions")[0] as JSONObject).getJSONObject("details").getString("edibility")
 
                 val psychoactive =  (jsonResponse.getJSONObject("result").getJSONObject("classification").getJSONArray("suggestions")[0] as JSONObject).getJSONObject("details").getString("psychoactive")
                 Log.d(TAG, name)
-                Log.d(TAG, commonName.toString())
+                Log.d(TAG, commonName)
                 Log.d(TAG, edibility)
                 Log.d(TAG, psychoactive)
+
+                requireActivity().runOnUiThread{
+                    updateUI(name, commonName, edibility, psychoactive)
+                }
             }
 
         })
@@ -129,8 +132,18 @@ class CameraFragment : Fragment(){
         return requestBody
     }
 
-    fun updateUI(latin :String, name :String, edibility :String, poison :String){
+    fun updateUI(latin :String, name :String, edibility :String, psyh :String){
+        binding.buttonSave.visibility = View.VISIBLE
+        binding.buttonShare.visibility = View.VISIBLE
 
+        binding.commonName.text = name
+        binding.commonName.visibility = View.VISIBLE
+        binding.latinName.text = latin
+        binding.latinName.visibility = View.VISIBLE
+        binding.edible.text = edibility
+        binding.edible.visibility = View.VISIBLE
+        binding.psychadelic.text = psyh
+        binding.psychadelic.visibility = View.VISIBLE
     }
 
 
