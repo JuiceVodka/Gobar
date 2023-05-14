@@ -87,8 +87,10 @@ class MainActivity : AppCompatActivity(), CompendiumFragment.detailsLst {
         }
 
         dbHelper = DatabaseHelper(this)
+        //delete after first run
+//        dbHelper!!.deleteDatabase(this)
 
-        val prefs : SharedPreferences = getApplicationContext().getSharedPreferences("preferences", Context.MODE_PRIVATE)
+        val prefs : SharedPreferences = applicationContext.getSharedPreferences("preferences", Context.MODE_PRIVATE)
         Log.d("DEBUG", prefs.all.toString())
         if(prefs.getBoolean("frstRun", true)){
             prefs.edit().putBoolean("frstRun", false).commit()
@@ -96,6 +98,8 @@ class MainActivity : AppCompatActivity(), CompendiumFragment.detailsLst {
             fillDb()
         }else{
             Log.d("DEBUG", "SCND")
+            //delete after first run
+//            fillDb()
         }
 
         detailsList = dbHelper!!.returnDetails()
@@ -132,14 +136,14 @@ class MainActivity : AppCompatActivity(), CompendiumFragment.detailsLst {
 
         binding.compendium.setOnClickListener {
             fragmentTransaction = supportFragmentManager.beginTransaction()
-            var compendiumFragment = CompendiumFragment()
+            val compendiumFragment = CompendiumFragment()
             fragmentTransaction?.replace(R.id.fragmentFrame, compendiumFragment)
             fragmentTransaction?.commit()
             cameraActive = false
         }
     }
 
-    fun fillDb(){
+    private fun fillDb(){
         val values: ContentValues = ContentValues()
         values.put(DatabaseHelper.MUSHROOM_COMMON_NAME, "Penny Bun");
         values.put(DatabaseHelper.MUSHROOM_LATIN_NAME, "Boletus edulis");
@@ -166,7 +170,7 @@ class MainActivity : AppCompatActivity(), CompendiumFragment.detailsLst {
         values.put(DatabaseHelper.MUSHROOM_EDIBILITY, "poisonous when raw, edible when cooked");
         values.put(DatabaseHelper.MUSHROOM_IS_PSYCHOACTIVE, 0);
         values.put(DatabaseHelper.MUSHROOM_IS_DISCOVERED, 0);
-        values.put(DatabaseHelper.MUSHROOM_IMAGE, "hhttps://observation.org/media/photo/42803009.jpg");
+        values.put(DatabaseHelper.MUSHROOM_IMAGE, "https://observation.org/media/photo/42803009.jpg");
         values.put(DatabaseHelper.MUSHROOM_NUMBER_FOUND, 0);
         dbHelper?.writableDatabase?.insert(DatabaseHelper.TABLE_MUSHROOM_DETAILS, null, values)
         values.clear()
