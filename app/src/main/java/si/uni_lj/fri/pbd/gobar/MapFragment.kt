@@ -1,11 +1,14 @@
 package si.uni_lj.fri.pbd.gobar
 
 import android.Manifest
+import android.R.attr.height
+import android.R.attr.width
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.location.Location
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +20,8 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
@@ -124,7 +129,10 @@ class MapFragment : Fragment() {
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location : Location? ->
                 Log.d(TAG, "LOCATION GOT")
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location!!.latitude, location.longitude), 15.0f))
+                if(location!= null){
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location!!.latitude, location.longitude), 15.0f))
+                }
+
                 // Got last known location. In some rare situations this can be null.
             }
     }
@@ -144,12 +152,22 @@ class MapFragment : Fragment() {
                     val titleLatin: String? = obj?.getString("NameLatin")
 
 
-                    if (long!=null && lat != null){
+                    if (long!=null && lat != null) {
                         val sydney = LatLng(lat.toDouble(), long.toDouble())
                         val marker = mMap.addMarker(MarkerOptions().position(sydney).title(title))
                         marker?.snippet = titleLatin
                         val h = 100
                         val w = 100
+
+                        val imageBitmap = BitmapFactory.decodeResource(
+                            resources,
+                            resources.getIdentifier("mushroomtheir", "drawable", requireActivity().packageName)
+                        )
+                        val btmp = Bitmap.createScaledBitmap(imageBitmap, h, w, false)
+
+                        val icon: BitmapDescriptor =
+                            BitmapDescriptorFactory.fromBitmap(btmp)
+                        marker?.setIcon(icon)
 
                         /*if(votes >= 50){
                             val icon:BitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.king)
@@ -173,9 +191,11 @@ class MapFragment : Fragment() {
     }
 
     fun addMarkersFromLocalDb(){
+        Log.d(TAG, "ADDIN")
         val dbHelper = DatabaseHelper(requireContext())
         val myShrooms = dbHelper.returnLocations()
         for (shroom in myShrooms){
+            Log.d(TAG, "SHROOOOOMSSS")
             val long: String? = shroom.long
             val lat: String? = shroom.lat
             val title: String? = shroom.commonName
@@ -183,11 +203,21 @@ class MapFragment : Fragment() {
 
 
             if (long!=null && lat != null){
-                val sydney = LatLng(lat.toDouble(), long.toDouble())
+                val sydney = LatLng(lat.toDouble()+0.2, long.toDouble()+0.2)
                 val marker = mMap.addMarker(MarkerOptions().position(sydney).title(title))
                 marker?.snippet = titleLatin
                 val h = 100
                 val w = 100
+
+                val imageBitmap = BitmapFactory.decodeResource(
+                    resources,
+                    resources.getIdentifier("mushroommy", "drawable", requireActivity().packageName)
+                )
+                val btmp = Bitmap.createScaledBitmap(imageBitmap, h, w, false)
+
+                val icon: BitmapDescriptor =
+                    BitmapDescriptorFactory.fromBitmap(btmp)
+                marker?.setIcon(icon)
             }
         }
     }
