@@ -15,9 +15,7 @@ class SplashScreenActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_screen)
-        val myTextView = findViewById<TextView>(R.id.napis)
-        val typeface = Typeface.create("sans-serif", Typeface.BOLD)
-        myTextView.typeface = typeface
+
 
         Handler().postDelayed({
             //replace SplashActivity with MainActivity after timer

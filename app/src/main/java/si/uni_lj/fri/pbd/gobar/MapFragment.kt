@@ -130,14 +130,36 @@ class MapFragment : Fragment() {
             .addOnSuccessListener { location : Location? ->
                 Log.d(TAG, "LOCATION GOT")
                 if(location!= null){
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location!!.latitude, location.longitude), 15.0f))
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 15.0f))
+
+                    val long: String = location.latitude.toString()
+                    val lat: String = location.longitude.toString()
+                    val title: String = "You are here"
+                    Log.d("DebugLong", long.toString())
+                    Log.d("DebugLat", lat.toString())
+                    val sydney = LatLng(lat.toDouble() - 0.2, long.toDouble() - 0.2 )
+                    val marker = mMap.addMarker(MarkerOptions().position(sydney).title(title))
+                    val h = 150
+                    val w = 150
+
+                    val imageBitmap = BitmapFactory.decodeResource(
+                        resources,
+                        resources.getIdentifier("redridinhood", "drawable", requireActivity().packageName)
+                    )
+                    val btmp = Bitmap.createScaledBitmap(imageBitmap, h, w, false)
+
+                    val icon: BitmapDescriptor =
+                        BitmapDescriptorFactory.fromBitmap(btmp)
+                    marker?.setIcon(icon)
+
+
                 }
 
                 // Got last known location. In some rare situations this can be null.
             }
     }
 
-    fun addMarkersFromDB(){
+    private fun addMarkersFromDB(){
         Log.d(TAG, "MARKERS")
         val query: ParseQuery<ParseObject> = ParseQuery.getQuery("Mushroom")
         query.findInBackground { objects, e ->
@@ -190,7 +212,7 @@ class MapFragment : Fragment() {
         }
     }
 
-    fun addMarkersFromLocalDb(){
+    private fun addMarkersFromLocalDb(){
         Log.d(TAG, "ADDIN")
         val dbHelper = DatabaseHelper(requireContext())
         val myShrooms = dbHelper.returnLocations()
