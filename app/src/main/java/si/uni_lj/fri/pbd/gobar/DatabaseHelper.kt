@@ -1,11 +1,10 @@
 package si.uni_lj.fri.pbd.gobar
 
+import android.content.ContentValues
 import android.content.Context
-import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
-import java.text.SimpleDateFormat
 
 class DatabaseHelper(context: Context) :SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION){
 
@@ -89,7 +88,7 @@ class DatabaseHelper(context: Context) :SQLiteOpenHelper(context, DATABASE_NAME,
         return mushroomDetailsList
     }
     fun returnLocations() :List<MushroomLocationModel>{
-        val cursor = this.readableDatabase?.rawQuery("SELECT * FROM " + TABLE_MUSHROOM_DETAILS, null);
+        val cursor = this.readableDatabase?.rawQuery("SELECT * FROM " + TABLE_MUSHROOM_LOCATION, null);
 
         val mushroomLocationsList = mutableListOf<MushroomLocationModel>()
 
@@ -109,4 +108,28 @@ class DatabaseHelper(context: Context) :SQLiteOpenHelper(context, DATABASE_NAME,
         return mushroomLocationsList
 
     }
+
+    fun returnDetailsByLatinName(latinName:String) : MushroomDetailsModel? {
+        val cursor = this.readableDatabase?.rawQuery("SELECT * FROM " + TABLE_MUSHROOM_DETAILS + " WHERE NameLatin=?", arrayOf(latinName));
+        if (cursor?.moveToFirst() == true){
+            val mushroomDetail = MushroomDetailsModel(
+                cursor.getString(0),
+                cursor.getString(1),
+                cursor.getString(2),
+                cursor.getString(3),
+                cursor.getInt(4),
+                cursor.getInt(5),
+                cursor.getString(6),
+                cursor.getInt(7)
+            )
+            return mushroomDetail
+        }
+        return null
+    }
+
+
+    fun updateIfFound(values: ContentValues, latinName: String){
+        this.readableDatabase?.update(TABLE_MUSHROOM_DETAILS, values, "NameLatin=?", arrayOf(latinName))
+    }
+
 }
