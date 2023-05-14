@@ -3,6 +3,9 @@ package si.uni_lj.fri.pbd.gobar
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Path
+import android.graphics.RectF
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -61,11 +64,38 @@ class CameraFragment : Fragment(){
             image.apply {
                 view?.findViewById<ImageView>(R.id.memoImage)?.setImageBitmap(this)
                 // create rounded corners bitmap
+                view?.findViewById<ImageView>(R.id.memoImage)?.setImageBitmap(toRoundedCorners(8F))
             }
 
             run(image)
 
         }
+    }
+
+    fun Bitmap.toRoundedCorners(
+        cornerRadius: Float = 25F
+    ):Bitmap?{
+        val bitmap = Bitmap.createBitmap(
+            width, // width in pixels
+            height, // height in pixels
+            Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bitmap)
+
+        // path to draw rounded corners bitmap
+        val path = Path().apply {
+            addRoundRect(
+                RectF(0f,0f,width.toFloat(),height.toFloat()),
+                cornerRadius,
+                cornerRadius,
+                Path.Direction.CCW
+            )
+        }
+        canvas.clipPath(path)
+
+        // draw the rounded corners bitmap on canvas
+        canvas.drawBitmap(this,0f,0f,null)
+        return bitmap
     }
 
     fun run(bitmap :Bitmap) {
@@ -75,7 +105,7 @@ class CameraFragment : Fragment(){
     @Throws(IOException::class)
     fun identify(bitmap: Bitmap){
         Log.d(TAG, "IDENTIFIKACIJA")
-        val mediaType = "application/json; charset=utf-8".toMediaType()
+        /*val mediaType = "application/json; charset=utf-8".toMediaType()
         val requestBody = createRequestBody(bitmap)
         val request = Request.Builder()
             .url("https://mushroom.mlapi.ai/api/v1/identification?details=common_names,gbif_id,taxonomy,rank,characteristic,edibility,psychoactive")
@@ -86,7 +116,7 @@ class CameraFragment : Fragment(){
         var res :Response? = null
         val response = client.newCall(request).enqueue(object :Callback{
             override fun onFailure(call: Call, e: IOException) {
-
+                Log.d(TAG, "FAIL")
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -109,13 +139,14 @@ class CameraFragment : Fragment(){
                 Log.d(TAG, commonName)
                 Log.d(TAG, edibility)
                 Log.d(TAG, psychoactive)
-
-                requireActivity().runOnUiThread{
+                */
+                /*requireActivity().runOnUiThread{
                     updateUI(name, commonName, edibility, psychoactive)
                 }
             }
 
-        })
+        })*/
+        updateUI("name", "commonName", "edibility", "psychoactive")
     }
 
     @Throws(IOException::class)
@@ -133,6 +164,7 @@ class CameraFragment : Fragment(){
     }
 
     fun updateUI(latin :String, name :String, edibility :String, psyh :String){
+        binding.scroll.visibility = View.VISIBLE
         binding.buttonSave.visibility = View.VISIBLE
         binding.buttonShare.visibility = View.VISIBLE
 
