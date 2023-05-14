@@ -121,6 +121,7 @@ class MainActivity : AppCompatActivity(), CompendiumFragment.detailsLst {
                 fragmentTransaction?.replace(R.id.fragmentFrame, camFragment)
                 fragmentTransaction?.commit()
                 cameraActive = true
+                binding.photo.setImageResource(R.drawable.camera2)
             }
         }
 
@@ -130,6 +131,7 @@ class MainActivity : AppCompatActivity(), CompendiumFragment.detailsLst {
             fragmentTransaction?.replace(R.id.fragmentFrame, mapFragment)
             fragmentTransaction?.commit()
             cameraActive = false
+            binding.photo.setImageResource(R.drawable.camera2)
         }
 
         binding.compendium.setOnClickListener {
@@ -138,6 +140,8 @@ class MainActivity : AppCompatActivity(), CompendiumFragment.detailsLst {
             fragmentTransaction?.replace(R.id.fragmentFrame, compendiumFragment)
             fragmentTransaction?.commit()
             cameraActive = false
+            //change camera icon
+            binding.photo.setImageResource(R.drawable.camera2)
         }
     }
 
