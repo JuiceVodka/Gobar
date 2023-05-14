@@ -235,6 +235,48 @@ class MainActivity : AppCompatActivity(), CompendiumFragment.detailsLst {
         dbHelper?.writableDatabase?.insert(DatabaseHelper.TABLE_MUSHROOM_DETAILS, null, values)
         values.clear()
 
+
+        values.put(DatabaseHelper.MUSHROOM_COMMON_NAME, "Horse mushroom");
+        values.put(DatabaseHelper.MUSHROOM_LATIN_NAME, "Agaricus Arvensis");
+        values.put(DatabaseHelper.MUSHROOM_EDIBILITY, "edible");
+        values.put(DatabaseHelper.MUSHROOM_IS_PSYCHOACTIVE, 0);
+        values.put(DatabaseHelper.MUSHROOM_IS_DISCOVERED, 0);
+        values.put(DatabaseHelper.MUSHROOM_IMAGE, "https://www.first-nature.com/fungi/images/agaricaceae/agaricus-arvensis1.jpg");
+        values.put(DatabaseHelper.MUSHROOM_NUMBER_FOUND, 0);
+        dbHelper?.writableDatabase?.insert(DatabaseHelper.TABLE_MUSHROOM_DETAILS, null, values)
+        values.clear()
+
+        values.put(DatabaseHelper.MUSHROOM_COMMON_NAME, "Urban mushroom");
+        values.put(DatabaseHelper.MUSHROOM_LATIN_NAME, "Agaricus Bitorquis");
+        values.put(DatabaseHelper.MUSHROOM_EDIBILITY, "edible");
+        values.put(DatabaseHelper.MUSHROOM_IS_PSYCHOACTIVE, 0);
+        values.put(DatabaseHelper.MUSHROOM_IS_DISCOVERED, 0);
+        values.put(DatabaseHelper.MUSHROOM_IMAGE, "https://ymcanewcastle.com/wp-content/uploads/mp4w.jpg");
+        values.put(DatabaseHelper.MUSHROOM_NUMBER_FOUND, 0);
+        dbHelper?.writableDatabase?.insert(DatabaseHelper.TABLE_MUSHROOM_DETAILS, null, values)
+        values.clear()
+
+        values.put(DatabaseHelper.MUSHROOM_COMMON_NAME, "Yellow Foot");
+        values.put(DatabaseHelper.MUSHROOM_LATIN_NAME, "Agaricus Xanthodermus");
+        values.put(DatabaseHelper.MUSHROOM_EDIBILITY, "poisonous");
+        values.put(DatabaseHelper.MUSHROOM_IS_PSYCHOACTIVE, 0);
+        values.put(DatabaseHelper.MUSHROOM_IS_DISCOVERED, 0);
+        values.put(DatabaseHelper.MUSHROOM_IMAGE, "https://www.mushroomexpert.com/images/kuo6/agaricus_xanthodermus_03.jpg");
+        values.put(DatabaseHelper.MUSHROOM_NUMBER_FOUND, 0);
+        dbHelper?.writableDatabase?.insert(DatabaseHelper.TABLE_MUSHROOM_DETAILS, null, values)
+        values.clear()
+
+        values.put(DatabaseHelper.MUSHROOM_COMMON_NAME, "White Dunce Cap");
+        values.put(DatabaseHelper.MUSHROOM_LATIN_NAME, "Conocybe Lactea");
+        values.put(DatabaseHelper.MUSHROOM_EDIBILITY, "not edible");
+        values.put(DatabaseHelper.MUSHROOM_IS_PSYCHOACTIVE, 0);
+        values.put(DatabaseHelper.MUSHROOM_IS_DISCOVERED, 0);
+        values.put(DatabaseHelper.MUSHROOM_IMAGE, "https://objects.liquidweb.services/images/201909/richard_orr_48569822967_f93d811f94_b.jpg");
+        values.put(DatabaseHelper.MUSHROOM_NUMBER_FOUND, 0);
+        dbHelper?.writableDatabase?.insert(DatabaseHelper.TABLE_MUSHROOM_DETAILS, null, values)
+        values.clear()
+
+
         Log.d("DEBUG", "Baza napolnjena")
     }
 

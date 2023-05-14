@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:minHeight="80dp"
-            app:srcCompat="?attr/actionModeCutDrawable"
+            app:background="@drawable/trees"
             tools:ignore="SpeakableTextPresentCheck" />
 
         <ImageButton
@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:minHeight="80dp"
-            app:srcCompat="?attr/actionModeSelectAllDrawable"
+            app:background="@drawable/camera"
             tools:ignore="SpeakableTextPresentCheck" />
 
         <ImageButton
@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:minHeight="80dp"
-            app:srcCompat="?attr/homeAsUpIndicator"
+            app:background="@drawable/goal"
             tools:ignore="SpeakableTextPresentCheck" />
 
     </LinearLayout>

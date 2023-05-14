@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 
@@ -36,6 +37,8 @@ class MapFragment : Fragment() {
                 markerOptions.position(latLng)
                 // Set title of marker
                 markerOptions.title(latLng.latitude.toString() + " : " + latLng.longitude)
+                val icon = BitmapDescriptorFactory.fromResource(R.drawable.toadstool)
+                markerOptions.icon (icon)
                 // Remove all marker
                 googleMap.clear()
                 // Animating to zoom the marker
