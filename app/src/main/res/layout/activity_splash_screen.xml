@@ -4,12 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SplashScreenActivity">
+    tools:context=".SplashScreenActivity"
+    android:background="#c4d5ac"
+    >
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:text="@string/app_title"
+        android:id="@+id/napis"
         android:textSize="62sp"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintVertical_bias="0.5"
@@ -18,15 +21,14 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginTop="42sp"
-        android:fontFamily="cursive"
-        android:textFontWeight="10"
+        android:textColor="#d04f2d"
         />
 
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/goba"
+        android:src="@drawable/shroomicon"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
