@@ -1,8 +1,17 @@
 package si.uni_lj.fri.pbd.gobar
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
+import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.location.Location
+import android.graphics.Canvas
+import android.graphics.Path
+import android.graphics.RectF
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -10,7 +19,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.snackbar.Snackbar
+import com.parse.ParseObject
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -23,11 +39,20 @@ import java.io.IOException
 class CameraFragment : Fragment(){
 
     private lateinit var binding :FragmentCameraBinding
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    var dbHelper :DatabaseHelper? = null
+    var lat :Double? = null
+    var long :Double? = null
+    var latinName :String? = null
+    var comName :String? = null
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        getPrem()
+        getLoc()
     }
 
     override fun onCreateView(
@@ -36,7 +61,21 @@ class CameraFragment : Fragment(){
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentCameraBinding.inflate(inflater, container, false)
+
+        binding.buttonShare.setOnClickListener {
+            share()
+        }
+
+        binding.buttonSave.setOnClickListener {
+            save()
+        }
+
         return binding.root
+    }
+
+    override fun onAttach(context: Context) {
+        dbHelper = DatabaseHelper(context)
+        super.onAttach(context)
     }
 
 
@@ -61,11 +100,38 @@ class CameraFragment : Fragment(){
             image.apply {
                 view?.findViewById<ImageView>(R.id.memoImage)?.setImageBitmap(this)
                 // create rounded corners bitmap
+                view?.findViewById<ImageView>(R.id.memoImage)?.setImageBitmap(toRoundedCorners(8F))
             }
 
-            run(image)
+            identify(image)
 
         }
+    }
+
+    fun Bitmap.toRoundedCorners(
+        cornerRadius: Float = 25F
+    ):Bitmap?{
+        val bitmap = Bitmap.createBitmap(
+            width, // width in pixels
+            height, // height in pixels
+            Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bitmap)
+
+        // path to draw rounded corners bitmap
+        val path = Path().apply {
+            addRoundRect(
+                RectF(0f,0f,width.toFloat(),height.toFloat()),
+                cornerRadius,
+                cornerRadius,
+                Path.Direction.CCW
+            )
+        }
+        canvas.clipPath(path)
+
+        // draw the rounded corners bitmap on canvas
+        canvas.drawBitmap(this,0f,0f,null)
+        return bitmap
     }
 
     fun run(bitmap :Bitmap) {
@@ -86,7 +152,7 @@ class CameraFragment : Fragment(){
         var res :Response? = null
         val response = client.newCall(request).enqueue(object :Callback{
             override fun onFailure(call: Call, e: IOException) {
-
+                Log.d(TAG, "FAIL")
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -110,12 +176,21 @@ class CameraFragment : Fragment(){
                 Log.d(TAG, edibility)
                 Log.d(TAG, psychoactive)
 
+
+                latinName = name
+                comName = commonName
+
+                updateCompendium()
+
+
                 requireActivity().runOnUiThread{
+
                     updateUI(name, commonName, edibility, psychoactive)
                 }
             }
 
         })
+        updateUI("name", "commonName", "edibility", "psychoactive")
     }
 
     @Throws(IOException::class)
@@ -133,6 +208,7 @@ class CameraFragment : Fragment(){
     }
 
     fun updateUI(latin :String, name :String, edibility :String, psyh :String){
+        binding.scroll.visibility = View.VISIBLE
         binding.buttonSave.visibility = View.VISIBLE
         binding.buttonShare.visibility = View.VISIBLE
 
@@ -146,6 +222,111 @@ class CameraFragment : Fragment(){
         binding.psychadelic.visibility = View.VISIBLE
     }
 
+
+    fun share(){
+        Log.d(TAG, "SHARING")
+        val toBase = ParseObject("Mushroom")
+        toBase.put("NameCommon", comName!!)
+        toBase.put("NameLatin", latinName!!)
+
+
+        getLoc()
+
+        if(lat != null && long != null){
+            toBase.put("Lat", lat!!)
+            toBase.put("Long", long!!)
+        }
+
+        toBase.saveInBackground {
+            if (it != null) {
+                it.localizedMessage?.let { message -> Log.e("MainActivity", message) }
+            } else {
+                Log.d(TAG, toBase.toString())
+                Log.d(TAG, "Object saved.")
+            }
+        }
+
+    }
+
+    fun getPrem(){
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission
+                    .ACCESS_COARSE_LOCATION) || ActivityCompat.shouldShowRequestPermissionRationale (requireActivity(),
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                Log.d("Debug", "snekbar")
+                Snackbar.make(
+                    binding.root,
+                    R.string.permission_location_rationale,
+                    Snackbar.LENGTH_INDEFINITE
+                ).setAction(R.string.ok) {
+                    ActivityCompat.requestPermissions(
+                        requireActivity(), arrayOf(
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ),
+                        8
+                    )
+                }.show()
+            } else{
+                ActivityCompat.requestPermissions(
+                    requireActivity(), arrayOf(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ),
+                    8
+                )
+            }
+            return
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    fun getLoc(){
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { location : Location? ->
+                lat = location?.latitude
+                long = location?.longitude
+                // Got last known location. In some rare situations this can be null.
+            }
+    }
+
+    fun updateCompendium(){
+        var shroom = dbHelper?.returnDetailsByLatinName(latinName!!)
+        Log.d(TAG, shroom?.numFound.toString())
+        if(shroom != null){
+            val values = ContentValues()
+            values.put("NameCommon", comName)
+            values.put("NameLatin", latinName)
+            values.put("Edibility", shroom.edibility)
+            values.put("Image", shroom.image)
+            values.put("IsPsychoActive", shroom.isPsychoactive)
+            values.put("IsDiscovered", 1)
+            values.put("NumberFound", shroom.numFound + 1)
+
+            dbHelper?.updateIfFound(values, latinName!!)
+        }
+
+        shroom = dbHelper?.returnDetailsByLatinName(latinName!!)
+        Log.d(TAG, shroom?.numFound.toString())
+    }
+
+    fun save(){
+        val values: ContentValues = ContentValues()
+        values.put(DatabaseHelper.MUSHROOM_COMMON_NAME, comName);
+        values.put(DatabaseHelper.MUSHROOM_LATIN_NAME, latinName);
+        values.put(DatabaseHelper.MUSHROOM_LAT, (lat?.plus(0.2)).toString());
+        values.put(DatabaseHelper.MUSHROOM_LONG, (long?.plus(0.2)).toString());
+
+        dbHelper?.writableDatabase?.insert(DatabaseHelper.TABLE_MUSHROOM_LOCATION, null, values)
+        values.clear()
+    }
 
     companion object {
         const val TAG = "CAMERAFRAGMENT"

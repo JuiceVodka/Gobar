@@ -88,7 +88,6 @@ class MainActivity : AppCompatActivity(), CompendiumFragment.detailsLst {
 
         dbHelper = DatabaseHelper(this)
         //delete after first run
-//        dbHelper!!.deleteDatabase(this)
 
         val prefs : SharedPreferences = applicationContext.getSharedPreferences("preferences", Context.MODE_PRIVATE)
         Log.d("DEBUG", prefs.all.toString())
@@ -99,9 +98,7 @@ class MainActivity : AppCompatActivity(), CompendiumFragment.detailsLst {
         }else{
             Log.d("DEBUG", "SCND")
             //delete after first run
-//            fillDb()
         }
-
         detailsList = dbHelper!!.returnDetails()
 
         fragmentTransaction = supportFragmentManager.beginTransaction()
@@ -123,12 +120,13 @@ class MainActivity : AppCompatActivity(), CompendiumFragment.detailsLst {
                 camFragment = CameraFragment()
                 fragmentTransaction?.replace(R.id.fragmentFrame, camFragment)
                 fragmentTransaction?.commit()
+                cameraActive = true
             }
         }
 
         binding.map.setOnClickListener {
             fragmentTransaction = supportFragmentManager.beginTransaction()
-            var mapFragment = MapFragment()
+            val mapFragment = MapFragment()
             fragmentTransaction?.replace(R.id.fragmentFrame, mapFragment)
             fragmentTransaction?.commit()
             cameraActive = false
