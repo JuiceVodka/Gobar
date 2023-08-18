@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Gobar</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="app_title">Gobar</string>
+
+    <string name="back4app_server_url">https://parseapi.back4app.com/</string>
+    <!-- Change the following strings as required -->
+    <string name="back4app_app_id">b0nwpOui3Otwzc8HCbsCU7GC2zlVdz0JEpIQC2CQ</string>
+    <string name="back4app_client_key">c9Ze6l6rxERJIlBdFrlfezYxzAPNIDqKl4NjTn17</string>
+    <string name="permission_location_rationale">To show map markers, this app needs your location information</string>
+    <string name="ok">OK</string>
+
+    <string name="get_location">get location</string>
+    <string name="collection">COLLECTION</string>
+</resources>
